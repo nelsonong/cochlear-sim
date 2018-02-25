@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class ShowPanels : MonoBehaviour {
 
@@ -12,6 +13,7 @@ public class ShowPanels : MonoBehaviour {
 	//Call this function to activate and display the Options panel during the main menu
 	public void ShowOptionsPanel()
 	{
+		menuPanel.SetActive (false);
 		optionsPanel.SetActive(true);
 		optionsTint.SetActive(true);
 	}
@@ -21,12 +23,19 @@ public class ShowPanels : MonoBehaviour {
 	{
 		optionsPanel.SetActive(false);
 		optionsTint.SetActive(false);
+		menuPanel.SetActive (true);
 	}
 
 	//Call this function to activate and display the main menu panel during the main menu
 	public void ShowMenu()
 	{
 		menuPanel.SetActive (true);
+	}
+
+	//Reset to main menu
+	public void ResetToMenu()
+	{
+		SceneManager.LoadScene(0);
 	}
 
 	//Call this function to deactivate and hide the main menu panel during the main menu
