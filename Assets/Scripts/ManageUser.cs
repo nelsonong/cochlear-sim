@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -21,17 +22,9 @@ public class ManageUser : MonoBehaviour {
 
 		Debug.Log("privilege: " + privilege);
 
-		// Check if user already exists.
-		string[] users = PlayerPrefs.GetString("users", "").Split(';');
-		bool userExists = false;
-		foreach (string user in users) {
-			if (user == usernameText) {
-				userExists = true;
-			}
-		}
-
 		// Mark field red if user already exists.
-		if (userExists) {
+		List<string> userList = PlayerPrefs.GetString("users").Split(';').ToList();
+		if (userList.Exists(e => e.EndsWith(usernameText))) {
 			Image usernameFieldImage = GameObject.FindWithTag("UsernameField").GetComponent<Image>();
 			usernameFieldImage.color = Color.red;
 			return;
@@ -39,16 +32,15 @@ public class ManageUser : MonoBehaviour {
 
 		// Add user.
 		PlayerPrefs.SetString(usernameText, passwordText);
-		PlayerPrefs.SetString("users", string.Join(";", users) + ";" + usernameText);
-
-		Debug.Log("Users: " + PlayerPrefs.GetString("users"));
+		string users = PlayerPrefs.GetString("users");
+		PlayerPrefs.SetString("users", users + ";" + usernameText);
 
 		// Set privilege.
 		bool isAdmin = privilege == 0;
 		if (isAdmin) {
 			string admins = PlayerPrefs.GetString("admins");
 			PlayerPrefs.SetString("admins", admins + ";" + usernameText);
-			Debug.Log("Made it admin");
+			Debug.Log("Admins: " + PlayerPrefs.GetString("admins"));
 		}
 
 		// Reset fields and close panel.
@@ -57,15 +49,56 @@ public class ManageUser : MonoBehaviour {
 		HidePanel();
 	}
 
-	public void ModifyUser() {
+	void ModifyUser() {
+		// Get username.
+		Dropdown usernameDropdown = GameObject.FindWithTag("UsernameField").GetComponent<Dropdown>();
+		string username = usernameDropdown.GetComponentInChildren<Text>().text;
 
+		// Update username field.
+		InputField passwordField = GameObject.FindWithTag("Password").GetComponent<InputField>();
+		PlayerPrefs.SetString(username, passwordField.text);
+
+		// Update privilege.
+		Dropdown privilegeDropdown = GameObject.FindWithTag("Privilege").GetComponent<Dropdown>();
+		List<string> admins = PlayerPrefs.GetString("admins").Split(';').ToList();
+		bool isAdmin = admins.Exists(e => e.EndsWith(username));
+		if (privilegeDropdown.value == 0 && !isAdmin) {
+			admins.Add(username);
+			PlayerPrefs.SetString("admins", string.Join(";", admins.ToArray()));
+		} else if (privilegeDropdown.value == 1 && isAdmin) {
+			admins.Remove(username);
+			PlayerPrefs.SetString("admins", string.Join(";", admins.ToArray()));
+		}
+
+		HidePanel();
+	}
+
+	void UserChanged(int index) {
+		// Get username.
+		Dropdown usernameDropdown = GameObject.FindWithTag("UsernameField").GetComponent<Dropdown>();
+		string username = usernameDropdown.GetComponentInChildren<Text>().text;
+
+		// Update username field.
+		string storedPassword = PlayerPrefs.GetString(username);
+		InputField passwordField = GameObject.FindWithTag("Password").GetComponent<InputField>();
+		passwordField.text = storedPassword;
+
+		// Update privilege.
+		Dropdown privilegeDropdown = GameObject.FindWithTag("Privilege").GetComponent<Dropdown>();
+		List<string> admins = PlayerPrefs.GetString("admins").Split(';').ToList();
+		bool isAdmin = admins.Exists(e => e.EndsWith(username));
+		if (isAdmin) {
+			privilegeDropdown.value = 0;
+		} else {
+			privilegeDropdown.value = 1;
+		}
 	}
 
 	void UpdateUserList() {
 		Dropdown usernamesDropdown = GameObject.FindWithTag("UsernameField").GetComponent<Dropdown>();
-		string[] users = PlayerPrefs.GetString("users").Split(';');
+		List<string> users = PlayerPrefs.GetString("users").Split(';').ToList();
 		usernamesDropdown.ClearOptions();
-		usernamesDropdown.AddOptions(new List<string>(users));
+		usernamesDropdown.AddOptions(users);
 	}
 
 	void HidePanel() {

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -33,9 +34,8 @@ public class Login : MonoBehaviour {
 	}
 
 	void LoadDefaultUserbase() {
-		bool userbaseExists = PlayerPrefs.GetString("admin", "") != "";
+		bool userbaseExists = PlayerPrefs.GetString("admin").Equals("");
 		if (!userbaseExists) {
-			Debug.Log("Loaded default.");
 			PlayerPrefs.SetString("root", "root");
 			PlayerPrefs.SetString("admins", "root");
 			PlayerPrefs.SetString("users", "root");
@@ -43,11 +43,10 @@ public class Login : MonoBehaviour {
 	}
 
 	bool IsAdmin(string username) {
-		string[] admins = PlayerPrefs.GetString("admins").Split(';');
-		foreach (string admin in admins) {
-			if (admin == username) {
-				return true;
-			}
+		List<string> admins = PlayerPrefs.GetString("admins").Split(';').ToList();
+		bool isAdmin = admins.Exists(e => e.EndsWith(username));
+		if (isAdmin) {
+			return true;
 		}
 		return false;
 	}
