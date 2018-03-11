@@ -6,52 +6,46 @@ using UnityEngine.SceneManagement;
 
 public class Login : MonoBehaviour {
 
-	// Use this for initialization
 	void Start () {
 		LoadDefaultUserbase();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 	void HandleLogin() {
+		// Get field values.
 		string usernameText = GameObject.FindWithTag("Username").GetComponent<InputField>().text;
 		string passwordText = GameObject.FindWithTag("Password").GetComponent<InputField>().text;
 
+		// Check if password matches stored one.
 		string storedPassword = PlayerPrefs.GetString(usernameText, "");
-
 		bool passwordMatch = storedPassword != "" && storedPassword == passwordText;
 		if (passwordMatch) {
 			bool isAdmin = IsAdmin(usernameText);
 			if (isAdmin) {
-				SceneManager.LoadScene(0);
+				SceneManager.LoadScene("AdminMenu");
 			} else {
-				SceneManager.LoadScene(1);
+				SceneManager.LoadScene("UserMenu");
 			}
 		} else {
+			// Mark field red if password doesn't match.
 			Image passwordFieldImage = GameObject.FindWithTag("PasswordField").GetComponent<Image>();
 			passwordFieldImage.color = Color.red;
 		}
-
-		Debug.Log("username: " + usernameText + "; password: " + passwordText + "; passwordFound: " + storedPassword);
 	}
 
 	void LoadDefaultUserbase() {
-		Debug.Log("Loaded default called");
 		bool userbaseExists = PlayerPrefs.GetString("admin", "") != "";
 		if (!userbaseExists) {
-			Debug.Log("Userbase doesn't exist!");
+			Debug.Log("Loaded default.");
 			PlayerPrefs.SetString("root", "root");
 			PlayerPrefs.SetString("admins", "root");
+			PlayerPrefs.SetString("users", "root");
 		}
 	}
 
 	bool IsAdmin(string username) {
-		string[] adminsList = PlayerPrefs.GetString("admins").Split(';');
-		foreach (string adminName in adminsList) {
-			if (adminName == username) {
+		string[] admins = PlayerPrefs.GetString("admins").Split(';');
+		foreach (string admin in admins) {
+			if (admin == username) {
 				return true;
 			}
 		}

@@ -8,7 +8,9 @@ public class ShowPanels : MonoBehaviour {
 	public GameObject optionsTint;							//Store a reference to the Game Object OptionsTint 
 	public GameObject menuPanel;							//Store a reference to the Game Object MenuPanel 
 	public GameObject pausePanel;							//Store a reference to the Game Object PausePanel 
-
+	public GameObject manageUsersPanel;
+	public GameObject addUserPanel;
+	public GameObject modifyUserPanel;
 
 	//Call this function to activate and display the Options panel during the main menu
 	public void ShowOptionsPanel()
@@ -32,10 +34,19 @@ public class ShowPanels : MonoBehaviour {
 		menuPanel.SetActive (true);
 	}
 
-	//Reset to main menu
-	public void ResetToMenu()
+	public void ResetToAdminMenu()
 	{
-		SceneManager.LoadScene(0);
+		SceneManager.LoadScene("AdminMenu");
+	}
+
+	public void ResetToUserMenu()
+	{
+		SceneManager.LoadScene("UserMenu");
+	}
+
+	public void ResetToLogin()
+	{
+		SceneManager.LoadScene("LoginScreen");
 	}
 
 	//Call this function to deactivate and hide the main menu panel during the main menu
@@ -57,5 +68,41 @@ public class ShowPanels : MonoBehaviour {
 		pausePanel.SetActive (false);
 		optionsTint.SetActive(false);
 
+	}
+
+	public void ShowManageUsersPanel()
+	{
+		manageUsersPanel.SetActive(true);
+		menuPanel.SetActive(false);
+	}
+
+	public void HideManageUsersPanel()
+	{
+		manageUsersPanel.SetActive(false);
+		menuPanel.SetActive(true);
+	}
+
+	public void ShowAddUserPanel()
+	{
+		addUserPanel.SetActive(true);
+		manageUsersPanel.SetActive(false);
+	}
+
+	public void HideAddUserPanel()
+	{
+		addUserPanel.SetActive(false);
+		manageUsersPanel.SetActive(true);
+	}
+
+	public void ShowModifyUserPanel()
+	{
+		modifyUserPanel.SetActive(true);
+		manageUsersPanel.SetActive(false);
+	}
+
+	public void HideModifyUserPanel()
+	{
+		modifyUserPanel.SetActive(false);
+		manageUsersPanel.SetActive(true);
 	}
 }
