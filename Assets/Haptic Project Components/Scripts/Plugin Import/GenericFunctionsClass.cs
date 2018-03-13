@@ -18,6 +18,8 @@ public class GenericFunctionsClass : MonoBehaviour {
 	//Access to script SimpleShapeManipulation
 	public HapticClassScript myHapticClassScript;
 
+    private Rigidbody rb;
+
 	
 	//GetHapticWorkSpace Values
 	private float[] myWSPosition = new float[3];
@@ -53,7 +55,7 @@ public class GenericFunctionsClass : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-
+        rb = myHapticClassScript.hapticCursor.gameObject.GetComponent<Rigidbody>();
 	}
 
 	/******************************************************************************************************************************************************************/
@@ -213,8 +215,28 @@ public class GenericFunctionsClass : MonoBehaviour {
 
 	/******************************************************************************************************************************************************************/
 
+    public void GetProxyValues()
+    {
+        //Convert IntPtr to Double3Array
+        myProxyPosition = ConverterClass.ConvertIntPtrToDouble3(PluginImport.GetProxyPosition());
+
+        //Attach the Cursor Node
+        Vector3 positionCursor = new Vector3();
+        positionCursor = ConverterClass.ConvertDouble3ToVector3(myProxyPosition);
+        myHapticClassScript.hapticCursor.transform.position = positionCursor;
+
+        myProxyOrientation = ConverterClass.ConvertIntPtrToDouble4(PluginImport.GetProxyOrientation());
+
+        //Attach the Cursor Node
+        Vector4 OrientationCursor = new Vector4();
+        OrientationCursor = ConverterClass.ConvertDouble4ToVector4(myProxyOrientation);
+
+        //Assign Haptic Values to Cursor
+        myHapticClassScript.hapticCursor.transform.rotation = new Quaternion(OrientationCursor.x, OrientationCursor.y, OrientationCursor.z, OrientationCursor.w);
+    }
+
 	//Get Proxy Position and Orientation generic function
-	public 	void GetProxyValues()
+	public 	void GetProxyValues(bool useTransform)
 	{
 		/*Proxy Position*/
 		
@@ -224,14 +246,43 @@ public class GenericFunctionsClass : MonoBehaviour {
 		//Attach the Cursor Node
 		Vector3 positionCursor = new Vector3();
 		positionCursor = ConverterClass.ConvertDouble3ToVector3(myProxyPosition);
-		
-		//Assign Haptic Values to Cursor
-		myHapticClassScript.hapticCursor.transform.position = positionCursor;
-		
-		
-		//Proxy Right - Not use in that case
-		//Convert IntPtr to Double3Array
-		/*myProxyRight =  ConverterClass.ConvertIntPtrToDouble3(PluginImport.GetProxyRight());
+
+
+        positionCursor.z *= 2f;
+
+        //Vector3 movement = positionCursor - rb.position;
+
+        if (useTransform)
+            myHapticClassScript.hapticCursor.transform.position = positionCursor;
+        else
+            rb.MovePosition(positionCursor);
+
+        //myHapticClassScript.hapticCursor.transform.position = positionCursor;
+
+
+
+        /*
+        if (movement.magnitude > 0.1)
+        {
+            positionCursor = myHapticClassScript.hapticCursor.transform.position;//movement.normalized * 0.01f + myHapticClassScript.hapticCursor.transform.position;
+        }*/
+
+        //rb.velocity = new Vector3(0,0,0);
+        //if (movement.magnitude > 0.1)
+        //rb.velocity = movement * Time.deltaTime * 500;
+        //rb.AddForce(movement);
+
+        //else rb.velocity = new Vector3(0, 0, 0);
+
+        //rb.MovePosition(positionCursor);
+        //rb.position = positionCursor;
+        //rb.MovePosition(positionCursor*2);
+        //myHapticClassScript.hapticCursor.gameObject.GetComponent<Rigidbody>().MovePosition(positionCursor);
+        //rb.AddForce((rb.gameObject.transform.position - positionCursor) * 5, ForceMode.VelocityChange);
+
+        //Proxy Right - Not use in that case
+        //Convert IntPtr to Double3Array
+        /*myProxyRight =  ConverterClass.ConvertIntPtrToDouble3(PluginImport.GetProxyRight());
 		//Attach the Cursor Node
 		Vector3 rightCursor = new Vector3();
 		rightCursor = ConverterClass.ConvertDouble3ToVector3(myProxyRight);
@@ -251,17 +302,20 @@ public class GenericFunctionsClass : MonoBehaviour {
 
 		//Set Orientation
 		myHapticClassScript.hapticCursor.transform.rotation = Quaternion.LookRotation(directionCursor,torqueCursor);*/
-		
-		//Proxy Orientation
-		//Convert IntPtr to Double4Array
-		myProxyOrientation = ConverterClass.ConvertIntPtrToDouble4(PluginImport.GetProxyOrientation());
+
+        //Proxy Orientation
+        //Convert IntPtr to Double4Array
+        myProxyOrientation = ConverterClass.ConvertIntPtrToDouble4(PluginImport.GetProxyOrientation());
 		
 		//Attach the Cursor Node
 		Vector4 OrientationCursor = new Vector4();
 		OrientationCursor = ConverterClass.ConvertDouble4ToVector4(myProxyOrientation);
-		
-		//Assign Haptic Values to Cursor
-		myHapticClassScript.hapticCursor.transform.rotation =  new Quaternion(OrientationCursor.x,OrientationCursor.y,OrientationCursor.z,OrientationCursor.w);
+
+        //Assign Haptic Values to Cursor
+        if (useTransform)
+            myHapticClassScript.hapticCursor.transform.rotation =  new Quaternion(OrientationCursor.x,OrientationCursor.y,OrientationCursor.z,OrientationCursor.w);
+        else
+            rb.MoveRotation(new Quaternion(OrientationCursor.x, OrientationCursor.y, OrientationCursor.z, OrientationCursor.w));
 	}
 
     //Get Proxy Position and Orientation generic function for two haptic devices
@@ -374,45 +428,49 @@ public class GenericFunctionsClass : MonoBehaviour {
 	{
 		//Get array of all object with tag "Touchable"
 		GameObject[] myObjects = GameObject.FindGameObjectsWithTag("Touchable") as GameObject[];
+        Debug.Log("1");
 		
 		for (int ObjId = 0; ObjId < myObjects.Length; ObjId++)
 		{
-			/***************************************************************/
-			//Set the Transformation Matric of the Object
-			/***************************************************************/
-			//Get the Transformation matrix from object
-			Matrix4x4 m = new Matrix4x4();
+            Debug.Log("2");
+            /***************************************************************/
+            //Set the Transformation Matric of the Object
+            /***************************************************************/
+            //Get the Transformation matrix from object
+            Matrix4x4 m = new Matrix4x4();
 
 			//Build a transform Matrix from the translation/rotation and Scale parameters fo the object - Local Matrix
 			//m.SetTRS(myObjects[ObjId].transform.position,myObjects[ObjId].transform.rotation,myObjects[ObjId].transform.localScale);
 
 			//Build a transform Matrix from the translation/rotation and Scale parameters fo the object - Glabal Matrix
 			m  = myObjects[ObjId].transform.localToWorldMatrix;
-			
-			//Convert Matrix4x4 to double16
-			double[] matrix = ConverterClass.ConvertMatrix4x4ToDouble16(m);
+            Debug.Log("3");
+            //Convert Matrix4x4 to double16
+            double[] matrix = ConverterClass.ConvertMatrix4x4ToDouble16(m);
 			//Convert Double16 To IntPtr
 			IntPtr dstDoublePtr = ConverterClass.ConvertDouble16ToIntPtr(matrix);
-			
-			//Convert String to Byte[] (char* in C++) and Byte[] to IntPtr
-			IntPtr dstCharPtr = ConverterClass.ConvertStringToByteToIntPtr(myObjects[ObjId].name);
-			
-			//Send the transformation Matrix of the object
-			PluginImport.SetObjectTransform(ObjId, dstCharPtr, dstDoublePtr);
-			
-			/***************************************************************/
-			
-			/***************************************************************/
-			//Set the Mesh of the Object
-			/***************************************************************/
-			//Get Mesh of Object
-			Mesh mesh = myObjects[ObjId].GetComponent<MeshFilter>().mesh;
-			Vector3[] vertices = mesh.vertices;
+            Debug.Log("3a");
+            //Convert String to Byte[] (char* in C++) and Byte[] to IntPtr
+            IntPtr dstCharPtr = ConverterClass.ConvertStringToByteToIntPtr(myObjects[ObjId].name);
+            Debug.Log("3b");
+            //Send the transformation Matrix of the object
+            PluginImport.SetObjectTransform(ObjId, dstCharPtr, dstDoublePtr);
+            Debug.Log(myObjects[ObjId].gameObject.name);
+            Debug.Log("3c");
+            /***************************************************************/
 
-			int[] triangles = mesh.triangles;
-			
-			//Reorganize the Array
-			float[] verticesToSend = ConverterClass.ConvertVector3ArrayToFloatArray(vertices);
+            /***************************************************************/
+            //Set the Mesh of the Object
+            /***************************************************************/
+            //Get Mesh of Object
+            Mesh mesh = myObjects[ObjId].GetComponent<MeshFilter>().mesh;
+            Debug.Log("3d");
+            Vector3[] vertices = mesh.vertices;
+            Debug.Log("3e");
+            int[] triangles = mesh.triangles;
+            Debug.Log("4");
+            //Reorganize the Array
+            float[] verticesToSend = ConverterClass.ConvertVector3ArrayToFloatArray(vertices);
 			//Allocate Memory according to needed space for float* (3*4)
 			IntPtr dstVerticesArrayPtr = Marshal.AllocCoTaskMem(vertices.Length * 3 * Marshal.SizeOf(typeof(float)));
 			//Copy to dstPtr
@@ -423,13 +481,15 @@ public class GenericFunctionsClass : MonoBehaviour {
 			
 			//Send the Raw Mesh of the object - transformation are not applied on the Mesh vertices
 			PluginImport.SetObjectMesh(ObjId,dstVerticesArrayPtr, dstTrianglesArrayPtr,vertices.Length,triangles.Length);
-			/***************************************************************/
-			
-			/***************************************************************/
-			//Get the haptic parameter configuration
-			/***************************************************************/
-			ReadHapticProperties(ObjId, myObjects[ObjId]);
-			/***************************************************************/
+            /***************************************************************/
+            Debug.Log("5");
+            /***************************************************************/
+            //Get the haptic parameter configuration
+            /***************************************************************/
+            ReadHapticProperties(ObjId, myObjects[ObjId]);
+            /***************************************************************/
+
+            Debug.Log(PluginImport.GetHapticObjectFaceCount(ObjId));
 		}
 	}
 
@@ -455,6 +515,7 @@ public class GenericFunctionsClass : MonoBehaviour {
 		}
 		else
 		{
+            Debug.Log("Setting the values");
 			PluginImport.SetHapticProperty(ObjId,ConverterClass.ConvertStringToByteToIntPtr("stiffness"),myHapticPropertiesScript.stiffness);
 			PluginImport.SetHapticProperty(ObjId,ConverterClass.ConvertStringToByteToIntPtr("damping"),myHapticPropertiesScript.damping);
 			PluginImport.SetHapticProperty(ObjId,ConverterClass.ConvertStringToByteToIntPtr("staticFriction"),myHapticPropertiesScript.staticFriction);
@@ -571,8 +632,15 @@ public class GenericFunctionsClass : MonoBehaviour {
 		
 		//Set the effect
 		PluginImport.SetEffect(type,myFrictionScript.effect_index, myFrictionScript.gain, myFrictionScript.magnitude, myFrictionScript.duration, myFrictionScript.frequency, position, direction);
-		PluginImport.StartEffect(myFrictionScript.effect_index);
+		//PluginImport.StartEffect(myFrictionScript.effect_index);
 	}
+
+    public void StartFriction()
+    {
+        myFrictionScript = transform.GetComponent<FrictionEffect>();
+
+        PluginImport.StartEffect(myFrictionScript.effect_index);
+    }
 	
 	public void SetEnvironmentSpring()
 	{

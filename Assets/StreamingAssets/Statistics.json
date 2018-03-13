@@ -1,0 +1,16 @@
+{
+	"stats":
+	[
+		{
+			"username":"username_here",
+			"timeTraining":0,
+			"numResets":0,
+			"succesfulInserts":0,
+			"failedInserts":0,
+			"avgInsertionDepths": 0,
+			"avgInsertionTimes": 0,
+			"numAttempts": 0
+			
+		}
+	]
+}

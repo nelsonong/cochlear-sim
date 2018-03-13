@@ -36,10 +36,10 @@ public class SimpleShapeManipulation : HapticClassScript {
 			//PluginImport.UpdateWorkspace(myHapticCamera.transform.rotation.eulerAngles.y);  //To be deprecated
 
             //Update the Workspace as function of camera
-            for (int i = 0; i < workspaceUpdateValue.Length; i++)
-                workspaceUpdateValue[i] = myHapticCamera.transform.rotation.eulerAngles.y;
+            //for (int i = 0; i < workspaceUpdateValue.Length; i++)
+                //workspaceUpdateValue[i] = myHapticCamera.transform.rotation.eulerAngles.y;
 
-            PluginImport.UpdateHapticWorkspace(ConverterClass.ConvertFloatArrayToIntPtr(workspaceUpdateValue));
+            //PluginImport.UpdateHapticWorkspace(ConverterClass.ConvertFloatArrayToIntPtr(workspaceUpdateValue));
 
             //Set Mode of Interaction
             /*
@@ -63,10 +63,10 @@ public class SimpleShapeManipulation : HapticClassScript {
 		//Set Environmental Haptic Effect
 		/***************************************************************/
 			// Viscous Force Example 
-			myGenericFunctionsClassScript.SetEnvironmentViscosity();
+			//myGenericFunctionsClassScript.SetEnvironmentViscosity();
 
 			// Constant Force Example - We use this environmental force effect to simulate the weight of the cursor 
-			myGenericFunctionsClassScript.SetEnvironmentConstantForce();
+			//myGenericFunctionsClassScript.SetEnvironmentConstantForce();
 
 			// Spring Force Example
 			//myGenericFunctionsClassScript.SetEnvironmentSpring();
@@ -98,10 +98,10 @@ public class SimpleShapeManipulation : HapticClassScript {
         //PluginImport.UpdateWorkspace(myHapticCamera.transform.rotation.eulerAngles.y);//To be deprecated
 
         //Update the Workspace as function of camera
-        for (int i = 0; i < workspaceUpdateValue.Length; i++)
-            workspaceUpdateValue[i] = myHapticCamera.transform.rotation.eulerAngles.y;
+        //for (int i = 0; i < workspaceUpdateValue.Length; i++)
+            //workspaceUpdateValue[i] = myHapticCamera.transform.rotation.eulerAngles.y;
 
-        PluginImport.UpdateHapticWorkspace(ConverterClass.ConvertFloatArrayToIntPtr(workspaceUpdateValue));
+        //PluginImport.UpdateHapticWorkspace(ConverterClass.ConvertFloatArrayToIntPtr(workspaceUpdateValue));
 
         /***************************************************************/
         //Update cube workspace
@@ -116,7 +116,7 @@ public class SimpleShapeManipulation : HapticClassScript {
         //Associate the cursor object with the haptic proxy value  
         myGenericFunctionsClassScript.GetProxyValues();
 
-		myGenericFunctionsClassScript.GetTouchedObject();
+		//myGenericFunctionsClassScript.GetTouchedObject();
 
         //Debug.Log ("Button 1: " + PluginImport.GetButton1State()); // To be deprecated
         //Debug.Log ("Button 2: " + PluginImport.GetButton2State()); // To be deprecated

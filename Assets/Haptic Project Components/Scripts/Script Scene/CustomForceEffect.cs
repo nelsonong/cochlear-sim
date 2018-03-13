@@ -2,9 +2,11 @@ using UnityEngine;
 using System.Collections;
 using System;
 using System.Runtime.InteropServices;
-
+using UnityEngine.SceneManagement;
 
 public class CustomForceEffect : HapticClassScript {
+
+    public SimulationMonitor simMonitor;
 
 	//Generic Haptic Functions
 	private GenericFunctionsClass myGenericFunctionsClassScript;
@@ -12,12 +14,18 @@ public class CustomForceEffect : HapticClassScript {
     //Workspace Update Value
     float[] workspaceUpdateValue = new float[1];
 
+    private bool isKinematic;
+
+    private bool hasEnded;
+
     /*****************************************************************************/
 
     void Awake()
 	{
 		myGenericFunctionsClassScript = transform.GetComponent<GenericFunctionsClass>();
-	}
+        isKinematic = true;
+        hasEnded = false;
+    }
 
 
 
@@ -56,27 +64,32 @@ public class CustomForceEffect : HapticClassScript {
 			PluginImport.SetTouchableFace(ConverterClass.ConvertStringToByteToIntPtr(TouchableFace));
 			
 		}
-		else
-			Debug.Log("Haptic Device cannot be launched");
+        else
+        {
+            Debug.Log("Haptic Device cannot be launched");
+        }
+			
 
 		/***************************************************************/
 		//Set Environmental Haptic Effect
 		/***************************************************************/
 			// Viscous Force Example
-			myGenericFunctionsClassScript.SetEnvironmentViscosity ();
+			//myGenericFunctionsClassScript.SetEnvironmentViscosity ();
+
+        myGenericFunctionsClassScript.SetEnvironmentFriction();
 
 			// Constant Force Example - We use this environmental force effect to simulate the weight of the cursor
-			myGenericFunctionsClassScript.SetEnvironmentConstantForce();
+			//myGenericFunctionsClassScript.SetEnvironmentConstantForce();
 
 			//Custom Force Effect Vibration Motor
-			myGenericFunctionsClassScript.SetVibrationMotor();
+			//myGenericFunctionsClassScript.SetVibrationMotor();
 
 			//Custom Force Effect Vibration at Contact//Good for p1ulsation
-			myGenericFunctionsClassScript.SetVibrationContact();
+			//myGenericFunctionsClassScript.SetVibrationContact();
 
 			//Custom Tangential Force corresponding to that of a rotating power tool (e.g. Drill, Polisher, Grinder)
 			// if tool is angled set direction to 0,1,0 otherwise it does not matter (Tool will be straight)
-			myGenericFunctionsClassScript.SetTangentialForce();
+			//myGenericFunctionsClassScript.SetTangentialForce();
 		
 		
 		/***************************************************************/
@@ -92,10 +105,38 @@ public class CustomForceEffect : HapticClassScript {
 		/***************************************************************/
 		PluginImport.LaunchHapticEvent();
 	}
-	
 
-	void Update()
+    public bool GetIsKinematic()
+    {
+        return isKinematic;
+    }
+
+    public void SetIsKinematic(bool value)
+    {
+        isKinematic = value;
+    }
+
+    public void StartFriction()
+    {
+        myGenericFunctionsClassScript.StartFriction();
+    }
+
+
+    void Update()
 	{
+
+        if (PluginImport.GetButtonState(1, 2))
+        {
+            StatsManager.instance.SetFullReset(false);
+            simMonitor.IncrementReset();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        if (PluginImport.GetButtonState(1, 1) & !hasEnded)
+        {
+            hasEnded = true;
+            simMonitor.SimEnd();
+        }
 
         /***************************************************************/
         //Update Workspace as function of camera
@@ -119,7 +160,7 @@ public class CustomForceEffect : HapticClassScript {
 		PluginImport.RenderHaptic ();
 		
         //Associate the cursor object with the haptic proxy value  
-		myGenericFunctionsClassScript.GetProxyValues();	
+		myGenericFunctionsClassScript.GetProxyValues(isKinematic);	
 	}
 
 	void OnDisable()

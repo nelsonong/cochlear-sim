@@ -8,12 +8,15 @@ public class StatsManager : MonoBehaviour {
 
     public static StatsManager instance;
 
-    private Dictionary<string, StatsAttributes> statsDict;
+    //private Dictionary<string, StatsItem> statsDict;
+    private StatsData loadedData;
     private bool isReady = false;
+    private bool fullReset = true;
+
     private string missingTextString = "Statistics data not found";
     private string missingUserString = "User not found";
-
     private string stats_file = "Statistics.json";
+
 
 
     // Use this for initialization
@@ -22,36 +25,42 @@ public class StatsManager : MonoBehaviour {
         if (instance == null)
         {
             instance = this;
+            LoadStats();
         }
         else if (instance != this)
         {
             Destroy(gameObject);
         }
 
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(gameObject);    
     }
 
-    public void LoadStats(string fileName)
+    public void LoadStats()
     {
-        statsDict = new Dictionary<string, StatsAttributes>();
+        //statsDict = new Dictionary<string, StatsItem>();
         string filePath = Path.Combine(Application.streamingAssetsPath, stats_file);
 
         if (File.Exists(filePath))
         {
             string dataAsJson = File.ReadAllText(filePath);
-            StatsData loadedData = JsonUtility.FromJson<StatsData>(dataAsJson);
+            loadedData = JsonUtility.FromJson<StatsData>(dataAsJson);
 
-            for (int i = 0; i < loadedData.stats.Length; i++)
+            /*for (int i = 0; i < loadedData.stats.Length; i++)
             {
                 statsDict.Add(loadedData.stats[i].username, loadedData.stats[i].userStats);
-            }
+            }*/
 
-            Debug.Log("Data loaded, dictionary contains: " + statsDict.Count + " entries");
+            Debug.Log("Data loaded, dictionary contains: " + loadedData.stats.Length + " entries");
         }
         else
         {
             Debug.LogError("Cannot find statistics file!");
         }
+
+        Debug.Log(loadedData.stats[0].username);
+        Debug.Log(loadedData.stats[0].numAttempts);
+        Debug.Log(loadedData.stats[0].numResets);
+        Debug.Log(loadedData.stats[0].avgInsertionDepths);
 
         isReady = true;
     }
@@ -62,38 +71,40 @@ public class StatsManager : MonoBehaviour {
 
         if (!string.IsNullOrEmpty(filePath))
         {
-            string dataAsJson = JsonUtility.ToJson(this.statsDict);
+            //string dataAsJson = JsonUtility.ToJson(statsDict);
+            string dataAsJson = JsonUtility.ToJson(loadedData);
+            Debug.Log(dataAsJson);
             File.WriteAllText(filePath, dataAsJson);
+            Debug.Log("After write");
         }
     }
 
-    public string SaveStats(string username, StatsAttributes userStats)
+    public string SaveStats(StatsItem userStats)
     {
-        if (!statsDict.ContainsKey(username))
+        Debug.Log("In save stats");
+        
+
+        Debug.Log("Found user");
+        Debug.Log(userStats.failedInserts);
+
+        if (!loadedData.SetUserStats(userStats))
         {
             return missingUserString;
         }
-
-        statsDict[username] = userStats;
 
         SaveToFile();
 
         return "Stats saved";
     }
 
-    public StatsAttributes GetUserStats(string username)
+    public StatsItem GetUserStats(string username)
     {
-        if (!statsDict.ContainsKey(username))
-        {
-            return null;
-        }
-
-        return statsDict[username];
+        return loadedData.getUserStats(username);
     }
 
-    public Dictionary<string, StatsAttributes> GetAllStats()
+    public StatsItem[] GetAllStats()
     {
-        return statsDict;
+        return loadedData.stats;
     }
 
     public bool GetIsReady()
@@ -103,17 +114,30 @@ public class StatsManager : MonoBehaviour {
 
     public string DeleteUserStats(string username)
     {
-        if (!statsDict.ContainsKey(username))
+        if (!loadedData.DeleteUserStats(username))
         {
             return missingUserString;
         }
-
-        statsDict.Remove(username);
 
         SaveToFile();
 
         return "Stats deleted";
     }
 
+    public void SetFullReset(bool setTo)
+    {
+        fullReset = setTo;
+    }
 
+    public bool GetFullReset()
+    {
+        return fullReset;
+    }
+
+    public void CreateUserStats(StatsItem newStats)
+    {
+        List<StatsItem> newLoadedData = new List<StatsItem>(loadedData.stats);
+        newLoadedData.Add(newStats);
+        loadedData.stats = newLoadedData.ToArray();
+    }
 }

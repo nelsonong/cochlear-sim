@@ -2,19 +2,23 @@ using UnityEngine;
 using System.Collections;
 using System;
 using System.Runtime.InteropServices;
-
+using UnityEngine.SceneManagement;
 
 public class SimpleShapeContactWriting : HapticClassScript {
 
 	//Generic Haptic Functions
 	private GenericFunctionsClass myGenericFunctionsClassScript;
 
-	private Writing myWritingScript;
-	private GameObject myResetButton;
-	private Color[] buttonResetColors = {new Color(1.0f, 1.0f, 1.0f), new Color(0.25f, 0.97f, 0.37f)};
+	//private Writing myWritingScript;
+	//private GameObject myResetButton;
+	//private Color[] buttonResetColors = {new Color(1.0f, 1.0f, 1.0f), new Color(0.25f, 0.97f, 0.37f)};
+
+    private Rigidbody rb;
 
     //Workspace Update Value
     float[] workspaceUpdateValue = new float[1];
+
+    private bool isKinematic;
 
     /*****************************************************************************/
 
@@ -22,9 +26,12 @@ public class SimpleShapeContactWriting : HapticClassScript {
 	{
 		myGenericFunctionsClassScript = transform.GetComponent<GenericFunctionsClass>();
 
-		myResetButton = GameObject.Find("reset");
-		myResetButton.GetComponent<Renderer>().material.color = buttonResetColors[0];
-		myWritingScript = GameObject.Find("Black_Board").GetComponent<Writing>();
+        rb = hapticCursor.gameObject.GetComponent<Rigidbody>();
+
+        isKinematic = true;
+		//myResetButton = GameObject.Find("reset");
+		//myResetButton.GetComponent<Renderer>().material.color = buttonResetColors[0];
+		//myWritingScript = GameObject.Find("Black_Board").GetComponent<Writing>();
 	}
 
 	void Start()
@@ -42,10 +49,10 @@ public class SimpleShapeContactWriting : HapticClassScript {
             //PluginImport.UpdateWorkspace(myHapticCamera.transform.rotation.eulerAngles.y);//To be deprecated
 
             //Update the Workspace as function of camera
-            for (int i = 0; i < workspaceUpdateValue.Length; i++)
-                workspaceUpdateValue[i] = myHapticCamera.transform.rotation.eulerAngles.y;
+            //for (int i = 0; i < workspaceUpdateValue.Length; i++)
+                //workspaceUpdateValue[i] = myHapticCamera.transform.rotation.eulerAngles.y;
 
-            PluginImport.UpdateHapticWorkspace(ConverterClass.ConvertFloatArrayToIntPtr(workspaceUpdateValue));
+            //PluginImport.UpdateHapticWorkspace(ConverterClass.ConvertFloatArrayToIntPtr(workspaceUpdateValue));
 
             //Set Mode of Interaction
             /*
@@ -55,25 +62,31 @@ public class SimpleShapeContactWriting : HapticClassScript {
 			 * Mode = 3 Puncture - So the haptic device is a needle that puncture inside a geometry
 			 */
             PluginImport.SetMode(ModeIndex);
-			//Show a text descrition of the mode
-			myGenericFunctionsClassScript.IndicateMode();
-			
-		}
+            //Show a text descrition of the mode
+            myGenericFunctionsClassScript.IndicateMode();
+
+            //Set the touchable face(s)
+            PluginImport.SetTouchableFace(ConverterClass.ConvertStringToByteToIntPtr(TouchableFace));
+
+        }
 		else
 			Debug.Log("Haptic Device cannot be launched");
 
-		/***************************************************************/
-		//Set Environmental Haptic Effect
-		/***************************************************************/
-		// Constant Force Example - We use this environmental force effect to simulate the weight of the cursor
-		myGenericFunctionsClassScript.SetEnvironmentConstantForce();
+        /***************************************************************/
+        //Set Environmental Haptic Effect
+        /***************************************************************/
+        // Constant Force Example - We use this environmental force effect to simulate the weight of the cursor
+        //myGenericFunctionsClassScript.SetEnvironmentConstantForce();
+
+        // Viscous Force Example
+        myGenericFunctionsClassScript.SetEnvironmentViscosity();
 
 
-		/***************************************************************/
-		//Setup the Haptic Geometry in the OpenGL context 
-		//And read haptic characteristics
-		/***************************************************************/
-		myGenericFunctionsClassScript.SetHapticGeometry();
+        /***************************************************************/
+        //Setup the Haptic Geometry in the OpenGL context 
+        //And read haptic characteristics
+        /***************************************************************/
+        myGenericFunctionsClassScript.SetHapticGeometry();
 		
 		//Get the Number of Haptic Object
 		//Debug.Log ("Total Number of Haptic Objects: " + PluginImport.GetHapticObjectCount());
@@ -84,19 +97,68 @@ public class SimpleShapeContactWriting : HapticClassScript {
 		PluginImport.LaunchHapticEvent();
 	}
 
+    public bool GetIsKinematic()
+    {
+        return isKinematic;
+    }
 
-	void Update()
+    public void SetIsKinematic(bool value)
+    {
+        isKinematic = value;
+    }
+
+    private void FixedUpdate()
+    {
+        //Associate the cursor object with the haptic proxy value  
+        //myGenericFunctionsClassScript.GetProxyValues();
+    }
+
+
+    void Update()
 	{
+        /*if (PluginImport.GetButtonState(1, 1) && isKinematic)
+        {
+            Debug.Log("Inside button press");
+            isKinematic = !isKinematic;
+
+            GameObject[] capsules = GameObject.FindGameObjectsWithTag("ElectrodeCapsule");
+
+            foreach (GameObject go in capsules)
+            {
+                Rigidbody goRB = go.GetComponent<Rigidbody>();
+                goRB.isKinematic = false;
+            }
+        }*/
+        
+        if (PluginImport.GetButtonState(1, 2))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        /*if (PluginImport.GetButtonState(1, 1))
+        {
+            isKinematic = !isKinematic;
+
+            GameObject[] capsules = GameObject.FindGameObjectsWithTag("ElectrodeCapsule");
+
+            foreach (GameObject go in capsules)
+            {
+                Rigidbody goRB = go.GetComponent<Rigidbody>();
+                goRB.isKinematic = false;
+            }
+        }*/
+        
+
         /***************************************************************/
         //Update Workspace as function of camera
         /***************************************************************/
         //PluginImport.UpdateWorkspace(myHapticCamera.transform.rotation.eulerAngles.y);//To be deprecated
 
         //Update the Workspace as function of camera
-        for (int i = 0; i < workspaceUpdateValue.Length; i++)
-            workspaceUpdateValue[i] = myHapticCamera.transform.rotation.eulerAngles.y;
+        //for (int i = 0; i < workspaceUpdateValue.Length; i++)
+            //workspaceUpdateValue[i] = myHapticCamera.transform.rotation.eulerAngles.y;
 
-        PluginImport.UpdateHapticWorkspace(ConverterClass.ConvertFloatArrayToIntPtr(workspaceUpdateValue));
+        //PluginImport.UpdateHapticWorkspace(ConverterClass.ConvertFloatArrayToIntPtr(workspaceUpdateValue));
 
         /***************************************************************/
         //Update cube workspace
@@ -109,23 +171,41 @@ public class SimpleShapeContactWriting : HapticClassScript {
 		PluginImport.RenderHaptic ();
 
         //Associate the cursor object with the haptic proxy value  
-        myGenericFunctionsClassScript.GetProxyValues();
-		
-		//myGenericFunctionsClassScript.GetTouchedObject();
+        myGenericFunctionsClassScript.GetProxyValues(isKinematic);
+        //myGenericFunctionsClassScript.GetProxyValues();
+
+        /*if (isKinematic)
+        {
+            GameObject[] capsules = GameObject.FindGameObjectsWithTag("ElectrodeCapsule");
+
+            foreach (GameObject go in capsules)
+            {
+                Rigidbody goRB = go.GetComponent<Rigidbody>();
+                goRB.constraints = RigidbodyConstraints.None;
+            }
+            isKinematic = false;
+        }*/
+
+
+        //Vector3 pos = ConverterClass.ConvertDouble3ToVector3(ConverterClass.ConvertIntPtrToDouble3(PluginImport.GetProxyPosition()));
+        //Vector3 movement = (rb.position - pos).normalized;
+        //rb.MovePosition(rb.position + movement * Time.deltaTime);
+        //hapticCursor.transform.position = pos;
+        //myGenericFunctionsClassScript.GetTouchedObject();
 
         //Reset the writing on the board
         //if(ConverterClass.ConvertIntPtrToByteToString( PluginImport.GetTouchedObjectName()) == "reset") // GetTouchedObjectName - To be deprecated
-        if (ConverterClass.ConvertIntPtrToByteToString(PluginImport.GetTouchedObjName(1)) == "reset")
-        {
-			myWritingScript.cleanBoard();
+        //if (ConverterClass.ConvertIntPtrToByteToString(PluginImport.GetTouchedObjName(1)) == "reset")
+        //{
+        //myWritingScript.cleanBoard();
 
-			//Change the Color of the button material
-			myResetButton.GetComponent<Renderer>().material.color = buttonResetColors[1];
-		}
-		else
-			myResetButton.GetComponent<Renderer>().material.color = buttonResetColors[0];
+        //Change the Color of the button material
+        //myResetButton.GetComponent<Renderer>().material.color = buttonResetColors[1];
+        //}
+        //else
+        //myResetButton.GetComponent<Renderer>().material.color = buttonResetColors[0];
 
-	}
+    }
 
 	void OnDisable()
 	{
