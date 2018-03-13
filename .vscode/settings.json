@@ -1,0 +1,8 @@
+{
+    // Hide uneditable files in editor.
+    "files.exclude": {
+        "**/*.meta": true,
+        "**/*.exe": true,
+        "**/*.dll": true
+    }
+}

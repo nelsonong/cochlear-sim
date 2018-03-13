@@ -7,29 +7,29 @@ using UnityEngine.SceneManagement;
 
 public class Login : MonoBehaviour {
 
+	public InputField usernameField;
+	public InputField passwordField;
+	public GameObject passwordFieldBackground;
+
 	void Start () {
 		LoadDefaultUserbase();
 	}
 
-	void HandleLogin() {
+	public void HandleLogin() {
 		// Get field values.
-		string usernameText = GameObject.FindWithTag("Username").GetComponent<InputField>().text;
-		string passwordText = GameObject.FindWithTag("Password").GetComponent<InputField>().text;
+		string username = usernameField.text;
+		string password = passwordField.text;
 
 		// Check if password matches stored one.
-		string storedPassword = PlayerPrefs.GetString(usernameText, "");
-		bool passwordMatch = storedPassword != "" && storedPassword == passwordText;
+		string storedPassword = PlayerPrefs.GetString(username, "");
+		bool passwordMatch = storedPassword != "" && storedPassword == password;
 		if (passwordMatch) {
-			bool isAdmin = IsAdmin(usernameText);
-			if (isAdmin) {
-				SceneManager.LoadScene("AdminMenu");
-			} else {
-				SceneManager.LoadScene("UserMenu");
-			}
+			PlayerPrefs.SetString("currentUser", username);
+			bool isAdmin = IsAdmin(username);
+			SceneManager.LoadScene(isAdmin ? "AdminScene" : "UserScene");
 		} else {
 			// Mark field red if password doesn't match.
-			Image passwordFieldImage = GameObject.FindWithTag("PasswordField").GetComponent<Image>();
-			passwordFieldImage.color = Color.red;
+			passwordFieldBackground.GetComponent<Image>().color = new Color32(133, 12, 12, 40);
 		}
 	}
 

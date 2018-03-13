@@ -4,6 +4,7 @@
 /[Bb]uild/
 /[Bb]uilds/
 /Assets/AssetStoreTools*
+/Assets/GUIPack-Clean&Minimalist/*
 
 # Visual Studio 2015 cache directory
 /.vs/
