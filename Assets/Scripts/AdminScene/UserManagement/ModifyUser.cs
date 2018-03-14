@@ -30,14 +30,14 @@ public class ModifyUser : MonoBehaviour {
 			PlayerPrefs.SetString("admins", string.Join(";", admins.ToArray()));
 		}
 
-		RepopulateManageUsersPanel();
+		RepopulateListItem(username);
 		DestroyThisPanel();
 	}
 
-	void RepopulateManageUsersPanel() {
+	void RepopulateListItem(string username) {
 		GameObject manageUsersPanel = GameObject.Find("Manage-Users-Popup(Clone)");
 		PopulateManageUsersPanel script = manageUsersPanel.GetComponent<PopulateManageUsersPanel>();
-		script.PopulatePanel(false);
+		script.RepopulateListItem(username);
 	}
 
 	void DestroyThisPanel() {

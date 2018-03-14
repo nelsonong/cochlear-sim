@@ -127,9 +127,18 @@ public class CustomForceEffect : HapticClassScript {
 
         if (PluginImport.GetButtonState(1, 2))
         {
-            StatsManager.instance.SetFullReset(false);
-            simMonitor.IncrementReset();
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            if (!isKinematic & !hasEnded) // hasn't gone in the cochlea yet
+            {
+                hasEnded = true;
+                simMonitor.SimEnd();
+            }
+            else
+            {
+                StatsManager.instance.SetFullReset(false);
+                simMonitor.IncrementReset();
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
+            
         }
 
         if (PluginImport.GetButtonState(1, 1) & !hasEnded)

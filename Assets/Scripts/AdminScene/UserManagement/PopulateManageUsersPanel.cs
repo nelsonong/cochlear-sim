@@ -15,9 +15,7 @@ public class PopulateManageUsersPanel : MonoBehaviour {
 	}
 
 	public void PopulatePanel(bool clearPanel = true) {
-		if (clearPanel) {
-			ClearPanel();
-		}
+		ClearPanel();
 		
 		List<string> users = PlayerPrefs.GetString("users").Split(';').ToList();
 		foreach (string username in users) {
@@ -33,6 +31,25 @@ public class PopulateManageUsersPanel : MonoBehaviour {
         }
 	}
 
+	public void RepopulateListItem(string username) {
+		int numChildren = scrollViewContent.transform.childCount;
+        for (int i = 0; i < numChildren; i++) {
+			GameObject listItem = scrollViewContent.transform.GetChild(i).gameObject;
+            
+			// Set username text.
+			Text[] textItems = listItem.GetComponentsInChildren<Text>();
+			if (textItems[0].text == username + "\n") {
+				// Set privileges text.
+				Color red = new Color32(248, 56, 56, 255);
+				Color yellow = new Color32(255, 183, 0, 255);
+				List<string> admins = PlayerPrefs.GetString("admins").Split(';').ToList();
+				bool isAdmin = admins.Exists(e => e.EndsWith(username));
+				textItems[1].text = isAdmin ? "/ Admin\n" : "/ User\n";
+				textItems[1].color = isAdmin ? red : yellow;
+			}
+        }
+	}
+
 	void AddUserToPanel(string username) {
 		GameObject listItem = Instantiate(listItemPrefab);
 		listItem.SetActive(true);
@@ -44,14 +61,11 @@ public class PopulateManageUsersPanel : MonoBehaviour {
 		textItems[0].text = username + "\n";
 
 		// Set privileges text.
+		Color red = new Color32(248, 56, 56, 255);
+		Color yellow = new Color32(255, 183, 0, 255);
 		List<string> admins = PlayerPrefs.GetString("admins").Split(';').ToList();
 		bool isAdmin = admins.Exists(e => e.EndsWith(username));
-		if (isAdmin) {
-			textItems[1].text = "/ Admin\n";
-			textItems[1].color = new Color32(248, 56, 56, 255);
-		} else {
-			textItems[1].text = "/ User\n";
-			textItems[1].color = new Color32(255, 183, 0, 255);
-		}
+		textItems[1].text = isAdmin ? "/ Admin\n" : "/ User\n";
+		textItems[1].color = isAdmin ? red : yellow;
 	}
 }

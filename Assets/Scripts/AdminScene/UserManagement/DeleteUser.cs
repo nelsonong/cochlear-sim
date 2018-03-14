@@ -24,6 +24,9 @@ public class DeleteUser : MonoBehaviour {
 			PlayerPrefs.SetString("admins", string.Join(";", admins.ToArray()));
 		}
 
+		// Delete existing stat entry.
+		StatsManager.instance.DeleteUserStats(username);
+
 		// Remove from view.
 		Destroy(listItemObject);
 	}

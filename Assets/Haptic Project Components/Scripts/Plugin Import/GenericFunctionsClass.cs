@@ -223,6 +223,9 @@ public class GenericFunctionsClass : MonoBehaviour {
         //Attach the Cursor Node
         Vector3 positionCursor = new Vector3();
         positionCursor = ConverterClass.ConvertDouble3ToVector3(myProxyPosition);
+
+        positionCursor.z *= 2f;
+
         myHapticClassScript.hapticCursor.transform.position = positionCursor;
 
         myProxyOrientation = ConverterClass.ConvertIntPtrToDouble4(PluginImport.GetProxyOrientation());

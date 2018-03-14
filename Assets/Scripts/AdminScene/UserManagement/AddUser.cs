@@ -36,6 +36,9 @@ public class AddUser : MonoBehaviour {
 				PlayerPrefs.SetString("admins", string.Join(";", admins.ToArray()));
 			}
 
+			// Create new stat entry.
+			StatsManager.instance.CreateUserStats(new StatsItem(username));
+
 			RepopulateManageUsersPanel();
 			DestroyThisPanel();
 		} else {

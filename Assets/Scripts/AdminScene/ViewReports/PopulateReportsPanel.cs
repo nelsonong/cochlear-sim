@@ -15,9 +15,7 @@ public class PopulateReportsPanel : MonoBehaviour {
 	}
 
 	public void PopulatePanel(bool clearPanel = true) {
-		// if (clearPanel) {
-		 	ClearPanel();
-		// }
+		ClearPanel();
 		
 		List<string> users = PlayerPrefs.GetString("users").Split(';').ToList();
 		foreach (string username in users) {
@@ -39,14 +37,23 @@ public class PopulateReportsPanel : MonoBehaviour {
 		listItem.transform.localScale = new Vector3( 1.0f, 1.0f, 1.0f );
 		listItem.transform.SetParent(scrollViewContent.transform, false);
 
-		// Set username text.
+		// Set username and color.
+		Color red = new Color32(248, 56, 56, 255);
+		Color yellow = new Color32(255, 183, 0, 255);
+
+		List<string> admins = PlayerPrefs.GetString("admins").Split(';').ToList();
+		bool isAdmin = admins.Exists(e => e.EndsWith(username));
 		Text[] textItems = listItem.GetComponentsInChildren<Text>();
 		textItems[0].text = username + "\n";
-		textItems[1].text = "timeTest";
-		textItems[2].text = "successTest";
-		textItems[3].text = "failedTest";
-		textItems[4].text = "avgTimeTest";
-		textItems[5].text = "avgDepthTest";
+		textItems[0].color = isAdmin ? red : yellow;
+
+		// Set stats.
+		StatsItem userData = StatsManager.instance.GetUserStats(username);
+		textItems[1].text = userData.timeTraining.ToString() + "s";
+		textItems[2].text = userData.successfulInserts.ToString();
+		textItems[3].text = userData.failedInserts.ToString();
+		textItems[4].text = userData.avgInsertionTimes.ToString() + "s";
+		textItems[5].text = userData.avgInsertionDepths.ToString() + "%";
 	}
 	
 }
