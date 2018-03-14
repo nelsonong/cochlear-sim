@@ -18,8 +18,7 @@ public class TrainSceneManager : MonoBehaviour {
 
     public CaptureFromScreen capFromScreen;
     public GameObject recText;
-
-    
+   
     private float prevDepth;
     private bool isRecording;
     private float timer;
@@ -114,6 +113,4 @@ public class TrainSceneManager : MonoBehaviour {
     {
         StatsManager.instance.SetSubmittingResults(false);
     }
-
-
 }
