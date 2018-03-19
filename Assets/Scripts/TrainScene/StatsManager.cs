@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.XR;
 
 public class StatsManager : MonoBehaviour {
 
@@ -23,6 +23,7 @@ public class StatsManager : MonoBehaviour {
     // Use this for initialization
     void Awake()
     {
+        XRSettings.enabled = false;
         fullReset = true;
         submittingResults = false;
 
@@ -85,12 +86,6 @@ public class StatsManager : MonoBehaviour {
 
     public string SaveStats(StatsItem userStats)
     {
-        Debug.Log("In save stats");
-        
-
-        Debug.Log("Found user");
-        Debug.Log(userStats.failedInserts);
-
         if (!loadedData.SetUserStats(userStats))
         {
             return missingUserString;

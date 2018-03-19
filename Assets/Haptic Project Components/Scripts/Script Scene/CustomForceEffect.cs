@@ -132,8 +132,9 @@ public class CustomForceEffect : HapticClassScript {
                 hasEnded = true;
                 simMonitor.SimEnd();
             }
-            else
+            else if (!hasEnded)
             {
+                hasEnded = true;
                 StatsManager.instance.SetFullReset(false);
                 simMonitor.IncrementReset();
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

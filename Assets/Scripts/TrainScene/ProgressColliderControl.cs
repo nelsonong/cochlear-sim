@@ -12,11 +12,14 @@ public class ProgressColliderControl : MonoBehaviour {
 
     private float percent;
 
+    private bool hasEnded;
+
     // Use this for initialization
     void Start()
     {
         total = GameObject.FindGameObjectsWithTag("ProgressCollider").Length;
         percent = id == total ? 100f : id * 100 / total;
+        hasEnded = false;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -26,9 +29,10 @@ public class ProgressColliderControl : MonoBehaviour {
             simMonitor.UpdateDepth(percent);
 
             // Successful insertion
-            if (id == total)
+            if (id == total && !hasEnded)
             {
                 Debug.Log("Inside final collider");
+                hasEnded = true;
                 simMonitor.SuccessfulInsert();
                 simMonitor.SimEnd();
             }

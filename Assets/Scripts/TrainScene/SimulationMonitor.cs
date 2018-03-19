@@ -5,16 +5,27 @@ using UnityEngine.SceneManagement;
 
 public class SimulationMonitor : MonoBehaviour {
 
+    public GameObject successPopup;
+    public GameObject failurePopup;
+
+    public HideCochlea hider;
+
     private float insertionDepth;
     private float timeTraining;
     private int numResets;
     private int successfulInserts;
     private int failedInserts;
 
+    private bool endSim;
+    private float endSimTimer;
+    
+
     private bool trackTime;
 
 	// Use this for initialization
 	void Start () {
+        endSim = false;
+        endSimTimer = 0;
         trackTime = false;
         initStats();
 
@@ -26,7 +37,7 @@ public class SimulationMonitor : MonoBehaviour {
         else
         {
             Debug.Log("not full reset");
-            numResets = StatsManager.instance.GetUserStats(PlayerPrefs.GetString("currentUser")).numResets;
+            //numResets = StatsManager.instance.GetUserStats(PlayerPrefs.GetString("currentUser")).numResets;
         }
 
 	}
@@ -35,6 +46,18 @@ public class SimulationMonitor : MonoBehaviour {
 	void Update () {
         if (trackTime)
             timeTraining += Time.deltaTime;
+
+        if (endSim)
+            endSimTimer += Time.deltaTime;
+
+        if (endSimTimer >= 1.6)
+        {
+            endSim = false;
+            endSimTimer = 0;
+            successPopup.SetActive(false);
+            failurePopup.SetActive(false);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
 	}
 
     private void initStats()
@@ -74,6 +97,8 @@ public class SimulationMonitor : MonoBehaviour {
         if (stats == null)
             return;
 
+        stats.numResets += 1;
+
         StatsManager.instance.SaveStats(stats);
     }
 
@@ -91,7 +116,7 @@ public class SimulationMonitor : MonoBehaviour {
 
     public void IncrementReset()
     {
-        numResets++;
+        //numResets++;
         Debug.Log(numResets);
         SaveNumResetsOnly();
     }
@@ -115,7 +140,18 @@ public class SimulationMonitor : MonoBehaviour {
         Save();
         StatsManager.instance.SetFullReset(true);
         StatsManager.instance.SetSubmittingResults(true);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        endSim = true;
+        hider.HandleHide();
+        successPopup.SetActive(true);
+    }
+
+    public void FailedInsert()
+    {
+        trackTime = false;
+        Save();
+        endSim = true;
+        hider.HandleHide();
+        failurePopup.SetActive(true);
     }
 
     
