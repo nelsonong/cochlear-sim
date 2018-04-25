@@ -5,37 +5,27 @@ using UnityEngine.UI;
 
 public class ForceReportingSystem : MonoBehaviour {
 
-    public Image img;
-    public Text txt;
+    public SimulationMonitor simMonitor;
 
-    private Rigidbody rb;
+    private float depth;
 
     // Use this for initialization
     void Start()
     {
-        img.GetComponent<Image>().color = Color.white;
-        txt.text = "Friction Force: " + "0";
-        rb = GetComponentInParent<Rigidbody>();
+        depth = 0f;
     }
 
-    public void OnCollisionStay(Collision collision)
+    public void OnCollisionStay(Collision col)
     {
-        if (collision.gameObject.tag == "Cochlea")
+        if (col.transform.CompareTag("Touchable"))
         {
-            Color intensityColor = Color.red;
-            intensityColor.r = 1 - rb.velocity.magnitude;
-            img.GetComponent<Image>().color = intensityColor;
-            txt.text = "Friction Force: " + rb.velocity.magnitude.ToString();
+            simMonitor.UpdateForceAtDepth(depth, (col.impulse / Time.fixedDeltaTime).magnitude);
+
         }
     }
 
-    public void OnCollisionExit(Collision collisionInfo)
+    public void UpdateDepth(float depth)
     {
-        if (collisionInfo.gameObject.tag == "Cochlea")
-        {
-            img.GetComponent<Image>().color = Color.white;
-            txt.text = "Friction Force: " + "0";
-        }
+        this.depth = depth;
     }
-
 }

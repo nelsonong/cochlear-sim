@@ -3,9 +3,15 @@
 /[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
+
 /Assets/AssetStoreTools*
+/Assets/Cochlea Models/*
+/Assets/Game Jame Template/*
 /Assets/GUIPack-Clean&Minimalist/*
+/Assets/Haptic Project Components/*
 /Assets/OR_Room/*
+/Assets/SmartChart/*
+/Assets/Plugins/RenderHeads/*
 
 # Visual Studio 2015 cache directory
 /.vs/
@@ -35,5 +41,3 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
-/Test_Data
-Test.exe

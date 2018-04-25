@@ -19,7 +19,8 @@ public class PopulateReportsPanel : MonoBehaviour {
 		
 		List<string> users = PlayerPrefs.GetString("users").Split(';').ToList();
 		foreach (string username in users) {
-            AddUserToPanel(username);
+            if (StatsManager.instance.GetUserStats(username) != null)
+                AddUserToPanel(username);
 		}
 	}
 

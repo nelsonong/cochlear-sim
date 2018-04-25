@@ -81,39 +81,4 @@ public class StatsItem
 }
 
 
-/*
-[System.Serializable]
-public class StatsItem
-{
-    public string username;
 
-    public StatsAttributes userStats;
-}
-
-[System.Serializable]
-public class StatsAttributes
-{
-    public float timeTraining;
-
-    public int numResets;
-
-    public int successfulInserts;
-
-    public int failedInserts;
-
-    public List<float> insertionDepths;
-
-    public List<float> insertionTimes;
-}*/
-
-
-/*
-[
-    {
-        username: blake,
-        stats: [
-            StatsAttribute   
-        ]
-    }
-]
-*/

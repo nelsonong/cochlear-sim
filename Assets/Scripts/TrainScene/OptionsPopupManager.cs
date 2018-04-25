@@ -4,24 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class OptionsPopupManager : MonoBehaviour {
-
     public Slider gainSlider;
     public Slider magnitudeSlider;
     public Slider springSlider;
     public Slider dampingSlider;
 
-    private GenericFunctionsClass genericFunctions;
-    private FrictionEffect frictionScript;
-    private List<GameObject> electrode;
+    private TrainSceneManager trainSceneManager;
 
     // Use this for initialization
     void Start () {
-        genericFunctions = GameObject.FindGameObjectWithTag("Controller").GetComponent<GenericFunctionsClass>();
-        frictionScript = GameObject.FindGameObjectWithTag("Controller").GetComponent<FrictionEffect>();
+        trainSceneManager = GameObject.FindGameObjectWithTag("TrainSceneManager").GetComponent<TrainSceneManager>();
         gainSlider.value = GetGain();
         magnitudeSlider.value = GetMagnitude();
-        
-        electrode = new List<GameObject>(GameObject.FindGameObjectsWithTag("ElectrodeCapsule"));
         springSlider.value = GetSpringConstant();
         dampingSlider.value = GetDampingFactor();
         
@@ -29,67 +23,58 @@ public class OptionsPopupManager : MonoBehaviour {
 
     public float GetGain()
     {
-        
-        return frictionScript.gain;
+        return trainSceneManager.GetGain();
     }
 
     public void SetGain()
     {
-        float gain = gainSlider.value;
-        gain = gain < 0 || gain > 1 ? 1 : gain;
-        frictionScript.gain = gain;
-        UpdateFrictionEffects();
+        trainSceneManager.SetGain(gainSlider.value);
     }
 
     public float GetMagnitude()
     {
-        return frictionScript.magnitude;
+        return trainSceneManager.GetMagnitude();
     }
 
     public void SetMagnitude()
     {
-        float mag = magnitudeSlider.value;
-        mag = mag < 0 || mag > 1 ? 1 : mag;
-        frictionScript.magnitude = mag;
-        UpdateFrictionEffects();
+        trainSceneManager.SetMagnitude(magnitudeSlider.value);
     }
 
     private void UpdateFrictionEffects()
     {
-        genericFunctions.SetEnvironmentFriction();
+        trainSceneManager.UpdateFrictionEffects();
     }
 
     public float GetSpringConstant()
     {
-        return electrode[0].GetComponent<HingeJoint>().spring.spring;
+        return trainSceneManager.GetSpringConstant();
     }
 
     public float GetDampingFactor()
     {
-        return electrode[0].GetComponent<HingeJoint>().spring.damper;
+        return trainSceneManager.GetDampingFactor();
     }
 
     public void UpdateDamping()
     {
-        float dampingConstant = dampingSlider.value;
-        foreach (GameObject capsule in electrode)
-        {
-            HingeJoint joint = capsule.GetComponent<HingeJoint>();
-            JointSpring spring = joint.spring;
-            spring.damper = dampingConstant;
-            joint.spring = spring;
-        }
+        trainSceneManager.UpdateDamping(dampingSlider.value);
     }
 
     public void UpdateSpringConstant()
     {
-        float springConstant = springSlider.value;
-        foreach (GameObject capsule in electrode)
-        {
-            HingeJoint joint = capsule.GetComponent<HingeJoint>();
-            JointSpring spring = joint.spring;
-            spring.spring = springConstant;
-            joint.spring = spring;
-        }
+        trainSceneManager.UpdateSpringConstant(springSlider.value);
+    }
+
+    public void ResetSpring()
+    {
+        springSlider.value = trainSceneManager.defaultSpring;
+        dampingSlider.value = trainSceneManager.defaultDamping;
+    }
+
+    public void ResetCochleaProperties()
+    {
+        gainSlider.value = trainSceneManager.defaultGain;
+        magnitudeSlider.value = trainSceneManager.defaultMagnitude;
     }
 }

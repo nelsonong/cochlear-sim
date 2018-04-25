@@ -8,6 +8,8 @@ public class CustomForceEffect : HapticClassScript {
 
     public SimulationMonitor simMonitor;
 
+    private GameObject cochlea;
+
 	//Generic Haptic Functions
 	private GenericFunctionsClass myGenericFunctionsClassScript;
 
@@ -18,6 +20,10 @@ public class CustomForceEffect : HapticClassScript {
 
     private bool hasEnded;
 
+    private bool hasStarted;
+
+    private float resetDisabled;
+
     /*****************************************************************************/
 
     void Awake()
@@ -25,13 +31,15 @@ public class CustomForceEffect : HapticClassScript {
 		myGenericFunctionsClassScript = transform.GetComponent<GenericFunctionsClass>();
         isKinematic = true;
         hasEnded = false;
+        hasStarted = false;
+        resetDisabled = 4f;
     }
 
 
 
 	void Start()
 	{
-
+        cochlea = StatsManager.instance.GetActiveCochlea();
 		if(PluginImport.InitHapticDevice())
 		{
 			Debug.Log("OpenGL Context Launched");
@@ -121,31 +129,32 @@ public class CustomForceEffect : HapticClassScript {
         myGenericFunctionsClassScript.StartFriction();
     }
 
+    private void DetachCochlea()
+    {
+        cochlea.transform.SetParent(null);
+    }
+
 
     void Update()
 	{
+        if (cochlea == null)
+            cochlea = StatsManager.instance.GetActiveCochlea();
 
         if (PluginImport.GetButtonState(1, 2))
         {
-            if (!isKinematic & !hasEnded) // hasn't gone in the cochlea yet
+            if (!hasStarted) // user hasn't pressed start
             {
-                hasEnded = true;
-                simMonitor.SimEnd();
-            }
-            else if (!hasEnded)
-            {
-                hasEnded = true;
-                StatsManager.instance.SetFullReset(false);
-                simMonitor.IncrementReset();
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            }
-            
+                DetachCochlea();
+                hasStarted = true;
+            }          
         }
 
         if (PluginImport.GetButtonState(1, 1) & !hasEnded)
         {
             hasEnded = true;
-            simMonitor.SimEnd();
+            StatsManager.instance.SetFullReset(false);
+            simMonitor.IncrementReset();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         /***************************************************************/

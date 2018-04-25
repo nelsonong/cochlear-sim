@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class HideCochlea : MonoBehaviour {
 
@@ -14,9 +15,6 @@ public class HideCochlea : MonoBehaviour {
 			GameObject capsule = electrode.transform.GetChild(i).gameObject;
             capsule.GetComponent<Renderer>().enabled = false;
         }
-
-		GameObject startScreen = GameObject.Find("Start Screen");
-		startScreen.SetActive(false);
 	}
 
 	public void HandleShow() {
@@ -30,4 +28,10 @@ public class HideCochlea : MonoBehaviour {
             capsule.GetComponent<Renderer>().enabled = true;
         }
 	}
+
+    public void HandleReload()
+    {
+        StatsManager.instance.SetChangingOptions(true);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
 }

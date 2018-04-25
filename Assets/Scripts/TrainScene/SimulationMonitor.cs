@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,6 +18,9 @@ public class SimulationMonitor : MonoBehaviour {
     private int successfulInserts;
     private int failedInserts;
 
+    private List<Vector2> depthStats;
+    private Dictionary<float, float> forceDict;
+
     private bool endSim;
     private float endSimTimer;
     
@@ -28,18 +33,6 @@ public class SimulationMonitor : MonoBehaviour {
         endSimTimer = 0;
         trackTime = false;
         initStats();
-
-        if (StatsManager.instance.GetFullReset())
-        {
-            Debug.Log("Fullreset");
-        }
-
-        else
-        {
-            Debug.Log("not full reset");
-            //numResets = StatsManager.instance.GetUserStats(PlayerPrefs.GetString("currentUser")).numResets;
-        }
-
 	}
 	
 	// Update is called once per frame
@@ -67,6 +60,8 @@ public class SimulationMonitor : MonoBehaviour {
         timeTraining = 0f;
         successfulInserts = 0;
         failedInserts = 1;
+        depthStats = new List<Vector2>();
+        forceDict = new Dictionary<float, float>();
     }
 
     private void Save()
@@ -75,9 +70,6 @@ public class SimulationMonitor : MonoBehaviour {
 
         if (stats == null)
             return;
-
-        Debug.Log("stats");
-        Debug.Log(stats.failedInserts);
 
         stats.numResets += numResets;
         stats.timeTraining += timeTraining;
@@ -88,6 +80,7 @@ public class SimulationMonitor : MonoBehaviour {
         stats.avgInsertionTimes = ((stats.numAttempts - 1) * stats.avgInsertionTimes + timeTraining) / stats.numAttempts;
 
         StatsManager.instance.SaveStats(stats);
+        SaveDepthAndForceStats();
     }
 
     private void SaveNumResetsOnly()
@@ -105,8 +98,38 @@ public class SimulationMonitor : MonoBehaviour {
     public void UpdateDepth(float progress)
     {
         insertionDepth = progress;
-        Debug.Log(insertionDepth);
+        depthStats.Add(new Vector2(timeTraining, insertionDepth));
+    }
 
+    public void UpdateForceAtDepth(float depth, float force)
+    {
+        if (forceDict.ContainsKey(depth))
+            forceDict[depth] = force > forceDict[depth] ? force : forceDict[depth];
+        else
+            forceDict[depth] = force;
+    }
+
+    private List<Vector2> ForceDictToList()
+    {
+        List<Vector2> forceStats = new List<Vector2>();
+        foreach (KeyValuePair<float, float> kvp in forceDict)
+        {
+            forceStats.Add(new Vector2(kvp.Key, kvp.Value));
+        }
+        forceStats = forceStats.OrderBy(o => o.x).ToList();
+        return forceStats;
+    }
+
+    public void SaveDepthAndForceStats()
+    {
+        string filename = PlayerPrefs.GetString("currentUser") + "_" + System.DateTime.Now.Ticks;
+        string filePath = Application.streamingAssetsPath + "/" + filename + "_GraphData.json";
+
+        if (!string.IsNullOrEmpty(filePath))
+        {
+            string dataAsJson = JsonUtility.ToJson(new SimulationStatsData(depthStats, ForceDictToList()), true);
+            File.WriteAllText(filePath, dataAsJson);
+        }
     }
 
     public float GetDepth()
@@ -142,7 +165,7 @@ public class SimulationMonitor : MonoBehaviour {
         StatsManager.instance.SetSubmittingResults(true);
         endSim = true;
         hider.HandleHide();
-        successPopup.SetActive(true);
+        successPopup.SetActive(successfulInserts > 0);
     }
 
     public void FailedInsert()

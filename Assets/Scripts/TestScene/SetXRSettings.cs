@@ -8,7 +8,7 @@ public class SetXRSettings : MonoBehaviour {
 
     void Awake()
     {
-        if (SceneManager.GetActiveScene().name == "TestScene" || SceneManager.GetActiveScene().name == "TestScene2")
+        if (SceneManager.GetActiveScene().name == "TestScene" || SceneManager.GetActiveScene().name == "AssessmentScene")
         {
             if (!XRSettings.enabled)
             {

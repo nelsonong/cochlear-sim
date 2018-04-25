@@ -12,6 +12,7 @@ public class Login : MonoBehaviour {
 	public GameObject passwordFieldBackground;
 
 	void Start () {
+        PlayerPrefs.DeleteAll();
 		LoadDefaultUserbase();
 	}
 

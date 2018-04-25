@@ -8,6 +8,8 @@ public class CustomForceEffect_ORScene : HapticClassScript {
 
     public SimulationMonitor_OR simMonitor;
 
+    public GameObject cochlea;
+
 	//Generic Haptic Functions
 	private GenericFunctionsClass myGenericFunctionsClassScript;
 
@@ -121,13 +123,17 @@ public class CustomForceEffect_ORScene : HapticClassScript {
         myGenericFunctionsClassScript.StartFriction();
     }
 
+    private void DetachCochlea()
+    {
+        cochlea.transform.SetParent(null);
+    }
 
     void Update()
 	{
 
         if (PluginImport.GetButtonState(1, 2))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            DetachCochlea();
         }
 
         if (PluginImport.GetButtonState(1, 1) & !hasEnded)

@@ -10,9 +10,9 @@ public class StatsManager : MonoBehaviour {
 
     //private Dictionary<string, StatsItem> statsDict;
     private StatsData loadedData;
-    private bool isReady = false;
     private bool fullReset;
     private bool submittingResults;
+    private bool changingOptions;
 
     private string missingTextString = "Statistics data not found";
     private string missingUserString = "User not found";
@@ -26,6 +26,7 @@ public class StatsManager : MonoBehaviour {
         XRSettings.enabled = false;
         fullReset = true;
         submittingResults = false;
+        changingOptions = false;
 
         if (instance == null)
         {
@@ -42,32 +43,34 @@ public class StatsManager : MonoBehaviour {
 
     public void LoadStats()
     {
-        //statsDict = new Dictionary<string, StatsItem>();
         string filePath = Path.Combine(Application.streamingAssetsPath, stats_file);
 
         if (File.Exists(filePath))
         {
             string dataAsJson = File.ReadAllText(filePath);
             loadedData = JsonUtility.FromJson<StatsData>(dataAsJson);
-
-            /*for (int i = 0; i < loadedData.stats.Length; i++)
-            {
-                statsDict.Add(loadedData.stats[i].username, loadedData.stats[i].userStats);
-            }*/
-
-            Debug.Log("Data loaded, dictionary contains: " + loadedData.stats.Length + " entries");
         }
         else
         {
             Debug.LogError("Cannot find statistics file!");
         }
+    }
 
-        Debug.Log(loadedData.stats[0].username);
-        Debug.Log(loadedData.stats[0].numAttempts);
-        Debug.Log(loadedData.stats[0].numResets);
-        Debug.Log(loadedData.stats[0].avgInsertionDepths);
-
-        isReady = true;
+    public SimulationStatsData LoadTimeAndForceStats(string filePath)
+    {
+        filePath = Application.streamingAssetsPath + "/" + filePath;
+        Debug.Log("This is the path");
+        Debug.Log(filePath);
+        if (File.Exists(filePath))
+        {
+            string dataAsJson = File.ReadAllText(filePath);
+            return JsonUtility.FromJson<SimulationStatsData>(dataAsJson);
+        }
+        else
+        {
+            Debug.LogError("Cannot find file!");
+            return null;
+        }
     }
 
     private void SaveToFile()
@@ -106,11 +109,6 @@ public class StatsManager : MonoBehaviour {
         return loadedData.stats;
     }
 
-    public bool GetIsReady()
-    {
-        return isReady;
-    }
-
     public string DeleteUserStats(string username)
     {
         if (!loadedData.DeleteUserStats(username))
@@ -143,6 +141,16 @@ public class StatsManager : MonoBehaviour {
         return submittingResults;
     }
 
+    public void SetChangingOptions(bool setTo)
+    {
+        changingOptions = setTo;
+    }
+
+    public bool GetChangingOptions()
+    {
+        return changingOptions;
+    }
+
     public void CreateUserStats(StatsItem newStats)
     {
         List<StatsItem> newLoadedData = new List<StatsItem>(loadedData.stats);
@@ -150,5 +158,20 @@ public class StatsManager : MonoBehaviour {
         loadedData.stats = newLoadedData.ToArray();
 
         SaveToFile();
+    }
+
+    public GameObject GetActiveCochlea()
+    {
+        switch (PlayerPrefs.GetInt("cochlea-model", 1))
+        {
+            case 1:
+                return GameObject.Find("CochleaModelA");
+
+            case 2:
+                return GameObject.Find("CochleaModelB");
+
+            default:
+                return GameObject.Find("CochleaModelC");
+        }
     }
 }

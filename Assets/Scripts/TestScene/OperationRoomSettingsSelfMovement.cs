@@ -59,7 +59,7 @@ public class OperationRoomSettingsSelfMovement : MonoBehaviour {
                     zoom -= 0.05f;
                 else
                 {
-                    SceneManager.LoadScene("TestScene2");
+                    SceneManager.LoadScene("AssessmentScene");
                 }
             }
 

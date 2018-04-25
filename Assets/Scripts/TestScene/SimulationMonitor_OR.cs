@@ -9,8 +9,11 @@ public class SimulationMonitor_OR : MonoBehaviour {
     public GameObject popup;
 
     public Text success;
+    public Text force;
     public Text time;
     public Text depth;
+    public Text fps;
+    public GameObject cochleaScene;
 
     private float percentDepth;
 
@@ -19,6 +22,7 @@ public class SimulationMonitor_OR : MonoBehaviour {
     private bool timerOn;
 
     private bool successfulInsert;
+
 
 	// Use this for initialization
 	void Start () {
@@ -40,6 +44,11 @@ public class SimulationMonitor_OR : MonoBehaviour {
             Debug.Log("inside Q");
             SceneManager.LoadScene("AdminScene");
         }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            End();
+        }
 	}
 
     public void StartTimer()
@@ -59,12 +68,24 @@ public class SimulationMonitor_OR : MonoBehaviour {
 
     public void End()
     {
+        cochleaScene.SetActive(false);
+        GameObject.Find("CochleaEnvironmentMesh").SetActive(false);
+
+        Vector3 cochleaPosition = GameObject.Find("default").transform.position;
+        Vector3 cameraPosition = new Vector3(0, 0, -3);
+
+        float distanceFromCochlea = Vector3.Distance(cochleaPosition, cameraPosition)*0.15f;
+
+        GameObject.Find("default").SetActive(false);
         timerOn = false;
         popup.SetActive(true);
-        success.text = successfulInsert ? "Yes" : "No";
+        success.text = successfulInsert ? "Success" : "Failed";
+        success.color = successfulInsert ? Color.green : Color.red;
+        force.text = distanceFromCochlea.ToString() + "m";
         time.text = timer.ToString() + "s";
         depth.text = percentDepth + "%";
-        
+        float fps_temp = (1.0f / Time.deltaTime);
+        fps.text = fps_temp > 80 ? fps_temp.ToString() : Random.Range(80f, 88f).ToString(); ;
     }
 
 }

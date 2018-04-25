@@ -27,6 +27,7 @@ public class ProgressColliderControl : MonoBehaviour {
         if (other.gameObject.CompareTag("LeadCapsule"))
         {
             simMonitor.UpdateDepth(percent);
+            other.gameObject.GetComponent<ForceReportingSystem>().UpdateDepth(percent);
 
             // Successful insertion
             if (id == total && !hasEnded)
@@ -42,6 +43,11 @@ public class ProgressColliderControl : MonoBehaviour {
                 Debug.Log("inside first collider");
                 simMonitor.SimStart();
             }
+        }
+
+        else if (other.gameObject.CompareTag("ElectrodeCapsule"))
+        {
+            other.gameObject.GetComponent<ForceReportingSystem>().UpdateDepth(percent);
         }
                     
     }

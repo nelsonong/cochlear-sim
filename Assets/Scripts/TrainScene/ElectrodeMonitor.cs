@@ -16,7 +16,7 @@ public class ElectrodeMonitor : MonoBehaviour {
 	void Start () {
         hasFailed = false;
         connectedCapsule = gameObject.GetComponent<HingeJoint>().connectedBody.gameObject;
-        distance =8 * Vector3.SqrMagnitude(gameObject.transform.position - connectedCapsule.transform.position); // Vector3.Distance(gameObject.transform.position, connectedCapsule.transform.position);
+        distance =10 * Vector3.SqrMagnitude(gameObject.transform.position - connectedCapsule.transform.position); // Vector3.Distance(gameObject.transform.position, connectedCapsule.transform.position);
 
 	}
 	

@@ -67,5 +67,14 @@ public class PopulateManageUsersPanel : MonoBehaviour {
 		bool isAdmin = admins.Exists(e => e.EndsWith(username));
 		textItems[1].text = isAdmin ? "/ Admin\n" : "/ User\n";
 		textItems[1].color = isAdmin ? red : yellow;
-	}
+
+        StatsItem userData = StatsManager.instance.GetUserStats(username);
+        string timeTraining = userData.timeTraining.ToString() + "s";
+        string successfulInserts = userData.successfulInserts.ToString();
+        string failedInserts = userData.failedInserts.ToString();
+        string avgInsertionTime = userData.avgInsertionTimes.ToString() + "s";
+        string avgInsertionDepth = userData.avgInsertionDepths.ToString() + "%";
+        textItems[2].text = "Time trained: " + timeTraining + ". Successful inserts: " + successfulInserts + ". Failed inserts: " + failedInserts + ".";
+
+    }
 }

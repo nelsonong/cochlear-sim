@@ -5,7 +5,7 @@ using UnityEngine;
 public class OpenExplorer : MonoBehaviour {
 
 	public void HandleOpen() {
-		string path = "C:\\Users\\achal\\Desktop\\Capstone\\capstone\\Assets";
-		System.Diagnostics.Process.Start("explorer.exe","/select,"+path);
+        string path = "C:\\Users\\achal\\Downloads\\capstone\\Assets";
+        System.Diagnostics.Process.Start("explorer.exe","/select,"+path);
 	}
 }
